@@ -13,8 +13,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ChatWebSocketHandler implements WebSocketHandler {
 
     private List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-    private List<HashMap<WebSocketSession,String>> usuariosConectados = new CopyOnWriteArrayList<>();
-    private HashMap<WebSocketSession,String> name_UserConId_session = new HashMap<>();
+    private HashMap<WebSocketSession,String> sesion_idSesion = new HashMap<>();
+    private HashMap<String,String> idSesion_username = new HashMap<>();
 
     /*Se ejecuta cuando se establece una nueva coneccion webSocket
       se agrega la sesion del cliente a la lista de sesiones activas*/
@@ -33,12 +33,14 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     @Override
     public void handleMessage(WebSocketSession session, WebSocketMessage<?> message) throws Exception {
         // Obtener el mensaje enviado por el cliente
-        String messageText = message.getPayload().toString();
+        String messageText = message.getPayload().toString(); // =OPEN:Jorge
 
         if (messageText.startsWith("OPEN:")) {
+
             // Este mensaje proviene del evento socket.onopen
             System.out.println("Nombre es: " + messageText+" con ID: "+session.getId());
-            name_UserConId_session.put(session, session.getId());
+            sesion_idSesion.put(session, session.getId());
+            idSesion_username.put(session.getId(),messageText);
 
             // Envia la sesion del cliente nuevo a todas las sesiones
             for (WebSocketSession s : sessions) {
@@ -46,12 +48,17 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             }
 
             //Envia todas la sesiones ya existente a la sesion actual
-            for(String usuarioConect : name_UserConId_session.values()){
+            for(String usuarioConect : sesion_idSesion.values()){
                 //omite volver a enviar la sesion actual dos veces
                 if(!session.getId().equals(usuarioConect)){
-                    session.sendMessage(new TextMessage("OPEN:"+usuarioConect+":"+messageText.substring(5)));
-                }
+                    session.sendMessage(new TextMessage("OPEN:"+usuarioConect+":chat"+i));
+                    i = i+1;
+                }//intentar hacerlo con un hashmap de sessiongetID y Nombres
             }
+            for(String user : idSesion_username.values()){
+                System.out.println("Hashmap: "+user);
+            }
+
         } else if (messageText.startsWith("CLICK:")) {
             // Este mensaje proviene del evento $("#enviar").click(function ()
             System.out.println("Contenido del mensaje por 'enviar': " + messageText);
@@ -74,8 +81,8 @@ public class ChatWebSocketHandler implements WebSocketHandler {
             }else {
                 // Encontrar la sesión del destinatario y enviar el mensaje solo a esa sesión
                 for (WebSocketSession s : sessions) {
-                    if (destinatario.equals(name_UserConId_session.get(s))) {
-                        System.out.println("la sesion encontrada es: "+name_UserConId_session.get(s));
+                    if (destinatario.equals(sesion_idSesion.get(s))) {
+                        System.out.println("la sesion encontrada es: "+sesion_idSesion.get(s));
                         s.sendMessage(new TextMessage("CLICK:"+remitente+": "+contenido));
                         session.sendMessage(new TextMessage("CLICK:Tú: "+contenido));
                     }
@@ -94,7 +101,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) {
         sessions.remove(session);
         // También debes eliminar la sesión del cliente de otros HashMaps si es necesario
-        name_UserConId_session.remove(session);
+        sesion_idSesion.remove(session);
     }
     @Override
     public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
