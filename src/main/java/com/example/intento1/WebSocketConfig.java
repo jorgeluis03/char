@@ -11,6 +11,6 @@ public class WebSocketConfig implements WebSocketConfigurer {
     //se sobre escribe el metodo para configurar el WebSocketHandler y el punto de entrada
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry registry){
-        registry.addHandler(new ChatWebSocketHandler(),"/chat").setAllowedOrigins("*");
+        registry.addHandler(new ChatWebSocketHandler(), "/chat").setAllowedOrigins("*");
     }
 }

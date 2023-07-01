@@ -34,6 +34,8 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
             // Este mensaje proviene del evento socket.onopen
             System.out.println("Nombre es: " + messageText+" con IDSession: "+session.getId());
+            session.sendMessage(new TextMessage("IDSESION:"+session.getId()));
+
             sesion_idSesion.put(session, session.getId());
             idSesion_username.put(session.getId(),messageText);
 
@@ -49,7 +51,6 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
                 if (!session.getId().equals(sessionId) && !messageText.equals(idSesion_username.get(sessionId))) {
                     session.sendMessage(new TextMessage("OPEN:" + sessionId + ":"+idSesion_username.get(sessionId).substring(5)));
-                    System.out.println("Hashmap: " + idSesion_username.get(sessionId));
                 }
             }
         } else if (messageText.startsWith("CLICK:")) {
