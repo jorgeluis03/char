@@ -22,7 +22,7 @@ public class ChatWebSocketHandler implements WebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
         sessions.add(session);
-        System.out.println("Sesion "+i+": "+session);
+        System.out.println("El Id de la sesion "+i+" es: "+session.getId());
         i++;
     }
 
@@ -37,19 +37,19 @@ public class ChatWebSocketHandler implements WebSocketHandler {
 
         if (messageText.startsWith("OPEN:")) {
             // Este mensaje proviene del evento socket.onopen
-            System.out.println("Nombre es: " + messageText);
-            name_UserConId_session.put(session, messageText);
+            System.out.println("Nombre es: " + messageText+" con ID: "+session.getId());
+            name_UserConId_session.put(session, session.getId());
 
             // Envia la sesion del cliente nuevo a todas las sesiones
             for (WebSocketSession s : sessions) {
-                s.sendMessage(new TextMessage(messageText));
+                s.sendMessage(new TextMessage("OPEN:"+session.getId()+":"+messageText.substring(5)));
             }
 
             //Envia todas la sesiones ya existente a la sesion actual
             for(String usuarioConect : name_UserConId_session.values()){
                 //omite volver a enviar la sesion actual dos veces
-                if(!messageText.equals(usuarioConect)){
-                    session.sendMessage(new TextMessage(usuarioConect));
+                if(!session.getId().equals(usuarioConect)){
+                    session.sendMessage(new TextMessage("OPEN:"+usuarioConect+":"+messageText.substring(5)));
                 }
             }
         } else if (messageText.startsWith("CLICK:")) {

@@ -40,8 +40,10 @@
       var messageText = event.data;
 
       if (messageText.startsWith("OPEN:")) {
-        var nombre = messageText.substring(5); // Obtener el nombre del mensaje
-        userConect.append('<option value="'+nombre+'">'+nombre+'</option>');
+        var parts = messageText.split(":", 3);
+        var id_sesion = parts[1];
+        var valor_name = parts[2];// Obtener el nombre del mensaje
+        userConect.append('<option value="'+id_sesion+'">'+valor_name+'</option>');
       } else if (messageText.startsWith("CLICK:")) {
         var contenido = messageText.substring(6); // Obtener el contenido del mensaje
         chatArea.append(contenido + "\n");
