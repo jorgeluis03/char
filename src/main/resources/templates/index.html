@@ -15,8 +15,8 @@
   <textarea class="form-control mt-2" id="chatArea" rows="10" cols="50" readonly></textarea>
   <input class="form-control mt-2" type="text" id="messageInput" size="50" placeholder="Mensaje">
   <button id="enviar" class="btn btn-primary mt-2 mb-2">Enviar</button>
-  </hr>
-  <select class="form-control" id="userConectados">
+  <label>Selecciona para enviar un mensaje</label>
+  <select class="form-control mt-2" id="userConectados">
     <option value="todos">Todos los miembros</option>
   </select>
 </div>
@@ -43,7 +43,6 @@
         var parts = messageText.split(":", 3);
         var id_sesion = parts[1];
         var nombre = parts[2];// Obtener el nombre del mensaje
-        console.log(nombre)
         userConect.append('<option value="'+id_sesion+'">'+nombre+'</option>');
       } else if (messageText.startsWith("CLICK:")) {
         var contenido = messageText.substring(6); // Obtener el contenido del mensaje
