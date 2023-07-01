@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+<div class="container-center col-5 p-5">
+
+
+  <input class="form-control" id="nombre" th:value="${nombre}" disabled>
+  <textarea class="form-control mt-2" id="chatArea" rows="10" cols="50" readonly></textarea>
+  <input class="form-control mt-2" type="text" id="messageInput" size="50" placeholder="Mensaje">
+  <button id="enviar" class="btn btn-primary mt-2 mb-2">Enviar</button>
+  </hr>
+  <select class="form-control" id="userConectados">
+    <option value="todos">Todos los miembros</option>
+  </select>
+</div>
+<script>
+  $(document).ready(function (){
+    var socket = new WebSocket("ws://localhost:8080/chat");
+
+    var chatArea = $("#chatArea");
+    var messageInput = $("#messageInput");
+    var nombreInput = $("#nombre");
+    var userConect = $("#userConectados");
+    var userEnLinea = $("#userConectados");
+
+    socket.onopen = function() {
+      var nombrevalor = nombreInput.val();
+      var mensaje = "OPEN:" + nombrevalor; // Etiqueta "OPEN:" + nombre del mensaje
+      socket.send(mensaje);
+    };
+
+    socket.onmessage = function(event) {
+      var messageText = event.data;
+
+      if (messageText.startsWith("OPEN:")) {
+        var nombre = messageText.substring(5); // Obtener el nombre del mensaje
+        userConect.append('<option value="'+nombre+'">'+nombre+'</option>');
+      } else if (messageText.startsWith("CLICK:")) {
+        var contenido = messageText.substring(6); // Obtener el contenido del mensaje
+        chatArea.append(contenido + "\n");
+      }
+    };
+
+    $("#enviar").click(function (){
+      var destinatario = userEnLinea.val();
+      var message = messageInput.val();
+      var remitente = nombreInput.val();
+      var mensaje = "CLICK:" +destinatario+":"+remitente+":"+ message; // Etiqueta "CLICK:" + contenido del mensaje
+      socket.send(mensaje);
+      messageInput.val("");
+    });
+  });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+</html>
+
